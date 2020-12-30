@@ -9,10 +9,11 @@ fHeight = 0.0
 PICTURESdir = "PICTURES/"
 
 def findDominantColor(img, start, end):
-    pixels = img[start[0]: end[0], start[1]: end[1]]
+    pixels = img[start[1]: end[1], start[0]: end[0]]
     reshaped = np.reshape(pixels, (-1,3))
-    
-    return dominant
+    unique, counts = np.unique(reshaped, axis=0, return_counts=True)
+    dominant = unique[np.argmax(counts)]
+    return (int(dominant[0]), int(dominant[1]), int(dominant[2]))
 
 def testFindDominantColor():
     cap = cv2.VideoCapture(0)
@@ -22,6 +23,8 @@ def testFindDominantColor():
     end = (int(fWidth/2 + 10), int(fHeight/2 + 10))
     while True:
         ret, img = cap.read()
+        dom = findDominantColor(img, start, end)
+        imgCopy = img.copy()
         cv2.rectangle(
             img,
             start,
@@ -29,10 +32,11 @@ def testFindDominantColor():
             (0,255,0),
             2
         )
-        dom = findDominantColor(img, start, end)
-        print(dom)
+        
+        cv2.rectangle(imgCopy, start, end, dom, 2)
         cv2.imshow("Dominant Color", img)
-        if im.waitKey(1) & 0xFF == ord('q'):
+        cv2.imshow("Actual Color", imgCopy)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             cap.release()
             break
 
@@ -109,3 +113,5 @@ def testDrawGrid():
         cv2.imshow("Grid", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break 
+
+testFindDominantColor()
