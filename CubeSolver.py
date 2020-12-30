@@ -16,8 +16,31 @@ BLACK = (0, 0, 0)
 fWidth = 0.0
 fHeight = 0.0
 PICTURESdir = "PICTURES/"
+def convertBGRToHSV(bgrColor):
+    bgrColor = (bgrColor[0]/255, bgrColor[1]/255, bgrColor[2]/255)
+    v = max(bgrColor)
+    s = (v - min(bgrColor))/v if v != 0 else 0
+    h = 0
+    if v == bgrColor[2]:
+        h = 60*(bgrColor[1]-bgrColor[0])/(v - min(bgrColor))
+    elif v == bgrColor[1]:
+        h = 120 + 60*(bgrColor[0] - bgrColor[2])/(v - min(bgrColor))
+    elif v == bgrColor[0]:
+        h = 240+60*(bgrColor[2]-bgrColor[1])/(v-min(bgrColor))
+    if(h> 360 or h< 0):
+        print(f"BAD H VALUE: {h}")
+    return (h,s,v)
 
-
+def getBlockColorType(bgrColor):
+    yellow = (45, 75)
+    blue = (175, 250)
+    green = (90, 145)
+    redLow = (0, 10)
+    redHigh = (330, 359)
+    orange = (15, 40)
+    whiteV = (0, 30)
+    hsv = cv2.cvtColor(b)
+    #tbd
 
 def findDominantColor(img, start, end):
     pixels = img[start[1]: end[1], start[0]: end[0]]
