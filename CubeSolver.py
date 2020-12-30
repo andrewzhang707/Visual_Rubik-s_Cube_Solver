@@ -2,8 +2,11 @@ import sys
 import cv2
 import numpy as np
 
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
 fWidth = 0.0
 fHeight = 0.0
+PICTURESdir = "PICTURES/"
 
 def findDominantColor(img, start, end):
     pixels = img[start[0]: end[0], start[1]: end[1]]
@@ -50,6 +53,16 @@ def TestReshape():
             break
         
 
+def captureFace(cap, fHeight, fWidth, color, up, down, left, right):
+    while True:
+        ret, frame = cap.read()
+        cv2.putText(frame, "Please show " + color + " face", (0, int (fHeight / 10)), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
+        drawGrid(frame, fHeight, fWidth, up, down, left, right)
+        cv2.imshow("Cube", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.imwrite(PICTURESdir + color + "-file.bmp", frame)
+            break
+
 def recognizeFaces():
     scanning = True
     cap = cv2.VideoCapture(0)
@@ -57,14 +70,12 @@ def recognizeFaces():
         raise IOError("video input not found")
     fWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-    print(f'{fWidth} x {fHeight}')
-    while scanning:
-        ret, frame = cap.read()
-        cv2.rectangle(frame, (0,0), (10,10), (0,255,0), 2)
-        cv2.imshow("Cube", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+    captureFace(cap, fHeight, fWidth, "green", "yellow", "white", "red", "orange")
+    captureFace(cap, fHeight, fWidth, "red", "yellow", "white", "blue", "green")
+    captureFace(cap, fHeight, fWidth, "blue", "yellow", "white", "orange", "red")
+    captureFace(cap, fHeight, fWidth, "orange", "yellow", "white", "green", "blue")
+    captureFace(cap, fHeight, fWidth, "yellow", "green", "blue", "orange", "red")
+    captureFace(cap, fHeight, fWidth, "white", "blue", "green", "orange", "red")
     cap.release()
 
 #Parameters are each face of the cube as a 3x3 array
@@ -73,18 +84,26 @@ def solver(yellow, white, blue, green, red, orange):
     print("wip")
 
 def drawGrid(img, height, width, up, down, left, right):
-    cv2.line(img, (int (width / 2 - height / 4), int (height / 4)),  (int (width / 2 + height / 4), int (height / 4)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 - height / 4), int (height / 4)),  (int (width / 2 - height / 4), int (3 * height / 4)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 + height / 4), int (3 * height / 4)),  (int (width / 2 + height / 4), int (height / 4)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 - height / 12), int (height / 4)),  (int (width / 2 - height / 12), int (3 * height / 4)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 + height / 12), int (3 * height / 4)),  (int (width / 2 + height / 12), int (height / 4)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 - height / 4), int (5 * height / 12)),  (int (width / 2 + height / 4), int (5 * height / 12)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 - height / 4), int (7 * height / 12)),  (int (width / 2 + height / 4), int (7 * height / 12)), (0, 255, 0))
-    cv2.line(img, (int (width / 2 - height / 4), int (3 * height / 4)),  (int (width / 2 + height / 4), int (3 * height / 4)), (0, 255, 0))
-    cv2.putText(img, up, (int (width / 2 - height / 12), int (height / 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 3)
-    cv2.putText(img, down, (int (width / 2 - height / 12), int (5 * height / 6)), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 3)
-    cv2.putText(img, left, (int (width / 2 - 5 * height / 12), int (7 * height / 12)), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 3)
-    cv2.putText(img, right, (int (width / 2 + 3 * height / 8), int (7 * height / 12)), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 3)
+    leftX = int (width / 2 - height / 4)
+    upperY = int (height / 4)
+    rightX = int (width / 2 + height / 4)
+    lowerY = int (3 * height / 4)
+    firstSplitX = int (width / 2 - height / 12)
+    secondSplitX = int (width / 2 + height / 12)
+    firstSplitY = int (5 * height / 12)
+    secondSplitY = int (7 * height / 12)
+    cv2.line(img, (leftX, upperY),  (rightX, upperY), GREEN)
+    cv2.line(img, (leftX, upperY),  (leftX, lowerY), GREEN)
+    cv2.line(img, (rightX, lowerY),  (rightX, upperY), GREEN)
+    cv2.line(img, (firstSplitX, upperY),  (firstSplitX, lowerY), GREEN)
+    cv2.line(img, (secondSplitX, lowerY),  (secondSplitX, upperY), GREEN)
+    cv2.line(img, (leftX, firstSplitY),  (rightX, firstSplitY), GREEN)
+    cv2.line(img, (leftX, secondSplitY),  (rightX, secondSplitY), GREEN)
+    cv2.line(img, (leftX, lowerY),  (rightX, lowerY), GREEN)
+    cv2.putText(img, up, (firstSplitX, int (height / 6)), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
+    cv2.putText(img, down, (firstSplitX, int (5 * height / 6)), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
+    cv2.putText(img, left, (int (width / 2 - 5 * height / 12), secondSplitY), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
+    cv2.putText(img, right, (int (width / 2 + 9 * height / 32), secondSplitY), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
 
 def testDrawGrid():
     cap = cv2.VideoCapture(0)
@@ -95,5 +114,4 @@ def testDrawGrid():
         drawGrid(frame,fHeight, fWidth, "yellow", "white", "red", "orange")
         cv2.imshow("Grid", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    
+            break 
