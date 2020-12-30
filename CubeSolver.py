@@ -1,6 +1,15 @@
 import sys
 import cv2
 import numpy as np
+import enum
+
+class Colors(enum.Enum):
+    Yellow = 0
+    Blue = 1
+    Red = 2
+    Green = 3
+    Orange = 4
+    White = 5
 
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
@@ -8,11 +17,15 @@ fWidth = 0.0
 fHeight = 0.0
 PICTURESdir = "PICTURES/"
 
+
+
 def findDominantColor(img, start, end):
     pixels = img[start[1]: end[1], start[0]: end[0]]
     reshaped = np.reshape(pixels, (-1,3))
     unique, counts = np.unique(reshaped, axis=0, return_counts=True)
     dominant = unique[np.argmax(counts)]
+    # these need to be utf-8 int type, otherwise openCV's rectangle 
+    # and related functions will not recognize it as acceptable parameter
     return (int(dominant[0]), int(dominant[1]), int(dominant[2]))
 
 def testFindDominantColor():
