@@ -39,8 +39,54 @@ def getBlockColorType(bgrColor):
     redHigh = (330, 359)
     orange = (15, 40)
     whiteV = (0, 30)
-    hsv = cv2.cvtColor(b)
-    #tbd
+    hsv = convertBGRToHSV(bgrColor)
+    if (hsv[2] > whiteV[0] and hsv[2] < whiteV[1]):
+        return Colors.White
+    if (hsv[0] > yellow[0] and hsv[0] < yellow[1]):
+        return Colors.Yellow
+    if (hsv[0] > blue[0] and hsv[0] < blue[0]):
+        return Colors.Blue
+    if (hsv[0] > green[0] and hsv[0] < green[1]):
+        return Colors.Green
+    if ((hsv[0] > redHigh[0] and hsv[0] < redHigh[1]) or
+        (hsv[0] > redLow[0] and hsv[0] < redLow[1])):
+        return Colors.Red
+    if(hsv[0] > orange[0] and hsv[0] < orange[1]):
+        return Colors.Orange
+
+def testColorIdTest():
+    cap = cv2.VideoCapture(0)
+    fWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    fHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    start = (int(fWidth/2 -10), int(fHeight/2 - 10))
+    end = (int(fWidth/2 + 10), int(fHeight/2 + 10))
+    while True:
+        ret, img = cap.read()
+        dom = findDominantColor(img, start, end)
+        color = getBlockColorType(dom)
+        text = {
+            Colors.White : "White",
+            Colors.Yellow :"Yellow",
+            Colors.Blue : "Blue",
+            Colors.Green : "Green",
+            Colors.Orange : "Orange",
+            Colors.Red : "Red"
+        }
+
+        cv2.putText(
+            img, 
+            f"Target color is {text.get(color, Colors.White)}", 
+            (0, int (fHeight / 10)), 
+            cv2.FONT_HERSHEY_COMPLEX, 
+            1, 
+            BLACK, 
+            3
+        )
+        cv2.rectangle(img, start, end, dom, 2)
+        cv2.imshow("Actual Color", img)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cap.release()
+            break
 
 def findDominantColor(img, start, end):
     pixels = img[start[1]: end[1], start[0]: end[0]]
@@ -150,4 +196,4 @@ def testDrawGrid():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break 
 
-testFindDominantColor()
+testColorIdTest()
