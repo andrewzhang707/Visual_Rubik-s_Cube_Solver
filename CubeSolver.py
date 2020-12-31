@@ -129,6 +129,31 @@ def findDominantColor(img, start, end):
     # and related functions will not recognize it as acceptable parameter
     return (int(dominant[0]), int(dominant[1]), int(dominant[2]))
 
+def findColors(fileName, width, height):
+    img = cv2.imread(fileName)
+    rows, cols = (3, 3) 
+    colorsArr = []
+    for i in range(cols): 
+        col = []
+        startY = int ( 7 * height / 24 + i * height / 6)
+        endY = int (startY + height / 12)
+        for j in range(rows):
+            startX = int (width / 2 - 5 * height / 24 + j * height / 6)
+            endX = int (startX + height / 12)
+            col.append(findDominantColor(img, (startX, startY), (endX, endY)))
+            #
+            cv2.rectangle(
+            img,
+            (startX, startY),
+            (endX, endY),
+            (255,255,255),
+            1
+        )
+        colorsArr.append(col) 
+    #
+    cv2.imwrite(fileName, img)
+    return colorsArr
+
 def testFindDominantColor():
     cap = cv2.VideoCapture(0)
     fWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -168,11 +193,12 @@ def TestReshape():
 def captureFace(cap, fHeight, fWidth, color, up, down, left, right):
     while True:
         ret, frame = cap.read()
-        cv2.putText(frame, "Please show " + color + " face", (0, int (fHeight / 10)), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
+        img = frame.copy()
+        cv2.putText(frame, "Please show the " + color + " face and press Q when aligned correctly", (0, int (fHeight / 10)), cv2.FONT_HERSHEY_COMPLEX, 1, BLACK, 3)
         drawGrid(frame, fHeight, fWidth, up, down, left, right)
         cv2.imshow("Cube", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.imwrite(PICTURESdir + color + "-file.bmp", frame)
+            cv2.imwrite(PICTURESdir + color + "-file.bmp", img)
             break
 
 def recognizeFaces():
@@ -226,4 +252,4 @@ def testDrawGrid():
         drawGrid(frame,fHeight, fWidth, "yellow", "white", "red", "orange")
         cv2.imshow("Grid", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break 
+            break
