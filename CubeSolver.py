@@ -179,17 +179,6 @@ def testFindDominantColor():
             cap.release()
             break
 
-def TestReshape():
-    cap = cv2.VideoCapture(0)
-    while True:
-        img = cap.read()
-        img = img.reshape((img.shape[0] * img.shape[1], 3))
-        cv2.imshow(img)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            cap.release()
-            break
-        
-
 def captureFace(cap, fHeight, fWidth, color, up, down, left, right):
     while True:
         ret, frame = cap.read()
