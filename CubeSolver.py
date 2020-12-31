@@ -68,7 +68,6 @@ def getBlockColorType(bgrColor):
     orange = (7, 40)
     whiteS = (0, 0.3)
     hsv = convertBGRToHSV(bgrColor)
-    print(hsv)
     if (hsv[1] >= whiteS[0] and hsv[1] <= whiteS[1]):
         return Colors.White
     if (hsv[0] >= yellow[0] and hsv[0] <= yellow[1]):
@@ -129,8 +128,7 @@ def findDominantColor(img, start, end):
     # and related functions will not recognize it as acceptable parameter
     return (int(dominant[0]), int(dominant[1]), int(dominant[2]))
 
-def findColors(fileName, width, height):
-    img = cv2.imread(fileName)
+def findColors(img, width, height):
     rows, cols = (3, 3) 
     colorsArr = []
     for i in range(cols): 
@@ -141,17 +139,7 @@ def findColors(fileName, width, height):
             startX = int (width / 2 - 5 * height / 24 + j * height / 6)
             endX = int (startX + height / 12)
             col.append(findDominantColor(img, (startX, startY), (endX, endY)))
-            #
-            cv2.rectangle(
-            img,
-            (startX, startY),
-            (endX, endY),
-            (255,255,255),
-            1
-        )
-        colorsArr.append(col) 
-    #
-    cv2.imwrite(fileName, img)
+        colorsArr.append(col)
     return colorsArr
 
 def testFindDominantColor():
@@ -178,6 +166,14 @@ def testFindDominantColor():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cap.release()
             break
+def convertToColorEnum(faceColor):
+    face = []
+    for row in faceColor:
+        faceRow = []
+        for bgr in row:
+            faceRow.append(getBlockColorType(bgr))
+        face.append(faceRow)
+    return face
 
 def captureFace(cap, fHeight, fWidth, color, up, down, left, right):
     while True:
@@ -187,8 +183,8 @@ def captureFace(cap, fHeight, fWidth, color, up, down, left, right):
         drawGrid(frame, fHeight, fWidth, up, down, left, right)
         cv2.imshow("Cube", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.imwrite(PICTURESdir + color + "-file.bmp", img)
-            break
+            dominantColors = findColors(img,fWidth, fHeight)
+            return convertToColorEnum(dominantColors)
 
 def recognizeFaces():
     scanning = True
@@ -197,13 +193,23 @@ def recognizeFaces():
         raise IOError("video input not found")
     fWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     fHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    captureFace(cap, fHeight, fWidth, "green", "yellow", "white", "red", "orange")
-    captureFace(cap, fHeight, fWidth, "red", "yellow", "white", "blue", "green")
-    captureFace(cap, fHeight, fWidth, "blue", "yellow", "white", "orange", "red")
-    captureFace(cap, fHeight, fWidth, "orange", "yellow", "white", "green", "blue")
-    captureFace(cap, fHeight, fWidth, "yellow", "green", "blue", "orange", "red")
-    captureFace(cap, fHeight, fWidth, "white", "blue", "green", "orange", "red")
+    greenFace = captureFace(cap, fHeight, fWidth, "green", "yellow", "white", "red", "orange")
+    redFace = captureFace(cap, fHeight, fWidth, "red", "yellow", "white", "blue", "green")
+    blueFace = captureFace(cap, fHeight, fWidth, "blue", "yellow", "white", "orange", "red")
+    orangeFace = captureFace(cap, fHeight, fWidth, "orange", "yellow", "white", "green", "blue")
+    yellowFace = captureFace(cap, fHeight, fWidth, "yellow", "green", "blue", "orange", "red")
+    whiteFace = captureFace(cap, fHeight, fWidth, "white", "blue", "green", "orange", "red")
     cap.release()
+    return (greenFace, redFace, blueFace, orangeFace, yellowFace, whiteFace)
+
+def testCaptureFace():
+    cap = cv2.VideoCapture(0)
+    while True:
+        fWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        fHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        greenFace = captureFace(cap, fHeight, fWidth, "green", "yellow", "white", "red", "orange")
+        print(f"array len = {len(greenFace)}")
+        print(greenFace)
 
 #Parameters are each face of the cube as a 3x3 array
 #Function returns a string in Cube Notation
