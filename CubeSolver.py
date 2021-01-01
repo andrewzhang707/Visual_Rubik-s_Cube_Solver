@@ -280,15 +280,15 @@ class Face:
         self.right.right.colors[0][0] = self.top.colors[top_orientations[row_start]:top_orientations[row_start]+1][top_orientations[col_start]:top_orientations[col_start]+1]
         self.right.right.colors[1][0] = self.top.colors[top_orientations[row_start+1]:top_orientations[row_start+1]+1][top_orientations[col_start+1]:top_orientations[col_start+1]+1]
         self.right.right.colors[2][0] = self.top.colors[top_orientations[col_start+2]:top_orientations[col_start+2]+1][top_orientations[col_start+2]:top_orientations[col_start+2]+1]
-        self.top.colors[top_orientations[row_start]:top_orientations[row_start]+1][top_orientations[col_start]:top_orientations[col_start]+1] =self.colors[0][2:]
-        self.top.colors[top_orientations[row_start+1]:top_orientations[row_start+1]+1][top_orientations[col_start+1]:top_orientations[col_start+1]+1] =self.colors[1][2:]
-        self.top.colors[top_orientations[col_start+2]:top_orientations[col_start+2]+1][top_orientations[col_start+2]:top_orientations[col_start+2]+1] =self.colors[2][2:]
+        self.top.colors[top_orientations[row_start]][top_orientations[col_start]:top_orientations[col_start]+1] =self.colors[0][2:]
+        self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]:top_orientations[col_start+1]+1] =self.colors[1][2:]
+        self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]:top_orientations[col_start+2]+1] =self.colors[2][2:]
         self.colors[0][2]=temp[0:1]
         self.colors[1][2]=temp[1:2]
         self.colors[2][2]=temp[2:]
         temp_index = 0
         add_array = [2,0,-2]
-        stemp = colors[2][0:1]
+        stemp = self.right.colors[2][0:1]
         for i in range(0,3):
             for j in range(1,4):
                 if(j!=1 and i != 2):
@@ -314,12 +314,12 @@ class Face:
         self.bottom.colors[bottom_orientations[row_start + 2]][bottom_orientations[col_start + 2]:bottom_orientations[col_start + 2] + 1] = self.colors[2][0:1]
         row_start = 3 * (self.colors[1][1] - 1)
         col_start = (3 * self.colors[1][1]) % 12
-        self.colors[0][0:1] = self.top.colors[top_orientations[row_start]:top_orientations[row_start]+1][top_orientations[col_start]:top_orientations[col_start]+1]
-        self.colors[1][0:1] = self.top.colors[top_orientations[row_start+1]:top_orientations[row_start+1]+1][top_orientations[col_start+1]:top_orientations[col_start+1]+1]
-        self.colors[2][0:1] = self.top.colors[top_orientations[col_start+2]:top_orientations[col_start+2]+1][top_orientations[col_start+2]:top_orientations[col_start+2]+1]
-        self.top.colors[top_orientations[row_start]:top_orientations[row_start]+1][top_orientations[col_start]:top_orientations[col_start]+1] = self.left.left.colors[0][2:]
-        self.top.colors[top_orientations[row_start+1]:top_orientations[row_start+1]+1][top_orientations[col_start+1]:top_orientations[col_start+1]+1] = self.left.left.colors[1][2:]
-        self.top.colors[top_orientations[col_start+2]:top_orientations[col_start+2]+1][top_orientations[col_start+2]:top_orientations[col_start+2]+1] = self.left.left.colors[2][2:]
+        self.colors[0][0:1] = self.top.colors[top_orientations[row_start]][top_orientations[col_start]:top_orientations[col_start]+1]
+        self.colors[1][0:1] = self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]:top_orientations[col_start+1]+1]
+        self.colors[2][0:1] = self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]:top_orientations[col_start+2]+1]
+        self.top.colors[top_orientations[row_start]][top_orientations[col_start]] = self.left.left.colors[0][2:]
+        self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]] = self.left.left.colors[1][2:]
+        self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]] = self.left.left.colors[2][2:]
         self.left.left.colors[0][2:] = temp[0:1]
         self.left.left.colors[1][2:] = temp[1:2]
         self.left.left.colors[2][2:] = temp[2:]
@@ -332,7 +332,7 @@ class Face:
                     temp_index = temp_index if temp_index != 3 else 2
                     temp[temp_index]=self.left.colors[3-j][i:i+1]
                     temp_index += 1
-                self.right.colors[3-j][i]=self.left.colors[i+add_array[i]][3-j:4-j] 
+                self.left.colors[3-j][i]=self.left.colors[i+add_array[i]][3-j:4-j] 
         self.left.colors[0][1] = temp[0:1]
         self.left.colors[0][2] = temp[1:2]
         self.left.colors[1][2] = temp[2:]
@@ -463,7 +463,7 @@ def TurnLogicUnitTest():
 
     (blue, red, green, orange, white, yellow) = createCube(bColor, rColor, gColor, oColor, wColor, yColor)
 
-    blue.turn_left()
+    blue.turn_right()
 
     print("blue: ")
     print(blue.colors)
