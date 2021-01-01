@@ -255,6 +255,19 @@ class Face:
         self.right = None
         self.top = None
         self.bottom = None
+    
+    def findEdgeColor(self, row, column):
+        if row == 0 and column == 1:
+            return self.top.colors[2][1]
+        elif row == 1 and column == 0:
+            return self.left.colors[1][2]
+        elif row == 1 and column == 2:
+            return self.right.colors[1][0]
+        elif row == 2 and column == 1:
+            return self.bottom.colors[0][1]
+        else:
+            raise IOError("Bad edge coordinate")
+
     def turn_right(self):
         temp = [None]*3
         top_orientations = [2,1,0,2,2,2,0,1,2,0,0,0]
@@ -484,4 +497,35 @@ def TurnLogicUnitTest():
     print(yellow.colors)
     print("")
     
-TurnLogicUnitTest()
+def testEdgeColor():
+    bColor = fillTestFace(Colors.Blue)
+    rColor = fillTestFace(Colors.Red)
+    gColor = fillTestFace(Colors.Green)
+    oColor = fillTestFace(Colors.Orange)
+    wColor = fillTestFace(Colors.White)
+    yColor = fillTestFace(Colors.Yellow)
+
+    (blue, red, green, orange, white, yellow) = createCube(bColor, rColor, gColor, oColor, wColor, yColor)
+
+    print("Test Blue Top:")
+    if blue.findEdgeColor(0, 1) == Colors.Yellow:
+        print("boobady- blue top passed")
+    else:
+        print("failed")
+    
+    if blue.findEdgeColor(1,0) == Colors.Orange:
+        print("Found orange")
+    else:
+        print("orange failed")
+
+    if blue.findEdgeColor(1, 2) == Colors.Red:
+        print("Found red")
+    else:
+        print("red failed")
+
+    if blue.findEdgeColor(2, 1) == Colors.White:
+        print("Found White")
+    else:
+        print("White Failed")
+
+testEdgeColor()
