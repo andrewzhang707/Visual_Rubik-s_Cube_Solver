@@ -3,12 +3,12 @@ import cv2
 import numpy as np
 import enum
 
-class Colors(enum.Enum):
+class Colors(enum.IntEnum):
     Bad = 0
     Blue = 1
-    Red = 2
+    Orange = 2
     Green = 3
-    Orange = 4
+    Red = 4
     White = 5
     Yellow = 6
 
@@ -253,3 +253,240 @@ def testDrawGrid():
         cv2.imshow("Grid", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+class Face:
+    def __init__(self, face_colors):
+        self.colors = face_colors[:][:]
+        self.left = None
+        self.right = None
+        self.top = None
+        self.bottom = None
+    def turn_right(self):
+        temp = [None]*3
+        top_orientations = [2,1,0,2,2,2,0,1,2,0,0,0]
+        bottom_orientations = [0,1,2,2,2,2,2,1,0,0,0,0]
+        bottom_color = self.colors[1][1]
+        if(bottom_color%2 == 0):
+            bottom_color = bottom_color + (2*pow((-1),(bottom_color/2+1)))
+        row_start = 3 * (bottom_color - 1)
+        col_start = (3*bottom_color) % 12
+        temp[0] = self.bottom.colors[bottom_orientations[row_start]][bottom_orientations[col_start]]
+        temp[1] = self.bottom.colors[bottom_orientations[row_start+1]][bottom_orientations[col_start+1]]
+        temp[2] = self.bottom.colors[bottom_orientations[row_start+2]][bottom_orientations[col_start+2]]
+        self.bottom.colors[bottom_orientations[row_start]][bottom_orientations[col_start]] = self.right.right.colors[2][0]
+        self.bottom.colors[bottom_orientations[row_start+1]][bottom_orientations[col_start+1]] = self.right.right.colors[1][0]
+        self.bottom.colors[bottom_orientations[row_start+2]][bottom_orientations[col_start+2]] = self.right.right.colors[0][0]
+        row_start = 3 * (self.colors[1][1] - 1)
+        col_start = (3*self.colors[1][1]) % 12
+        self.right.right.colors[0][0] = self.top.colors[top_orientations[row_start]][top_orientations[col_start]]
+        self.right.right.colors[1][0] = self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]]
+        self.right.right.colors[2][0] = self.top.colors[top_orientations[col_start+2]][top_orientations[col_start+2]]
+        self.top.colors[top_orientations[row_start]][top_orientations[col_start]] =self.colors[0][2]
+        self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]] =self.colors[1][2]
+        self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]] =self.colors[2][2]
+        self.colors[0][2]=temp[0]
+        self.colors[1][2]=temp[1]
+        self.colors[2][2]=temp[2]
+        temp_index = 0
+        add_array = [2,0,-2]
+        stemp = self.right.colors[2][0]
+        for i in range(0,3):
+            for j in range(1,4):
+                if(j!=1 and i != 2):
+                    temp_index = temp_index if temp_index != 3 else 2
+                    temp[temp_index]=self.right.colors[3-j][i]
+                    temp_index += 1
+                self.right.colors[3-j][i]=self.right.colors[i+add_array[i]][3-j] 
+        self.right.colors[0][1] = temp[0]
+        self.right.colors[0][2] = temp[1]
+        self.right.colors[1][2] = temp[2]
+        self.right.colors[0][0] = stemp  
+    def turn_left(self):
+        temp = [None] * 3
+        top_orientations = [0,1,2,0,0,0,2,1,0,2,2,2]
+        bottom_orientations = [2,1,0,2,2,2,0,1,2,0,0,0]
+        row_start = 3 * (self.colors[1][1] - 1)
+        col_start = (9 + 3 * (self.colors[1][1] - 1)) % 12
+        temp[0] = self.bottom.colors[bottom_orientations[row_start]][bottom_orientations[col_start]]
+        temp[1] = self.bottom.colors[bottom_orientations[row_start + 1]][bottom_orientations[col_start + 1]]
+        temp[2] = self.bottom.colors[bottom_orientations[row_start + 2]][bottom_orientations[col_start + 2]]
+        self.bottom.colors[bottom_orientations[row_start]][bottom_orientations[col_start]] = self.colors[0][0]
+        self.bottom.colors[bottom_orientations[row_start + 1]][bottom_orientations[col_start + 1]] = self.colors[1][0]
+        self.bottom.colors[bottom_orientations[row_start + 2]][bottom_orientations[col_start + 2]] = self.colors[2][0]
+        row_start = 3 * (self.colors[1][1] - 1)
+        col_start = (3 * self.colors[1][1]) % 12
+        self.colors[0][0] = self.top.colors[top_orientations[row_start]][top_orientations[col_start]]
+        self.colors[1][0] = self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]]
+        self.colors[2][0] = self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]]
+        self.top.colors[top_orientations[row_start]][top_orientations[col_start]] = self.left.left.colors[0][2]
+        self.top.colors[top_orientations[row_start+1]][top_orientations[col_start+1]] = self.left.left.colors[1][2]
+        self.top.colors[top_orientations[row_start+2]][top_orientations[col_start+2]] = self.left.left.colors[2][2]
+        self.left.left.colors[0][2] = temp[0]
+        self.left.left.colors[1][2] = temp[1]
+        self.left.left.colors[2][2] = temp[2]
+        temp_index = 0
+        add_array = [2,0,-2]
+        stemp = self.left.colors[2][0]
+        for i in range(0,3):
+            for j in range(1,4):
+                if(j!=1 and i != 2):
+                    temp_index = temp_index if temp_index != 3 else 2
+                    temp[temp_index]=self.left.colors[3-j][i]
+                    temp_index += 1
+                self.left.colors[3-j][i]=self.left.colors[i+add_array[i]][3-j] 
+        self.left.colors[0][1] = temp[0]
+        self.left.colors[0][2] = temp[1]
+        self.left.colors[1][2] = temp[2]
+        self.left.colors[0][0] = stemp
+    def turn_upper(self):
+        temp = [None] *3
+        temp[0] = self.colors[0][0]
+        temp[1] = self.colors[0][1]
+        temp[2] = self.colors[0][2]
+        self.colors[0][0] = self.right.colors[0][0]
+        self.colors[0][1] = self.right.colors[0][1]
+        self.colors[0][2]  = self.right.colors[0][2] 
+        self.right.colors[0][0] = self.right.right.colors[0][0]
+        self.right.colors[0][1] = self.right.right.colors[0][1]
+        self.right.colors[0][2] = self.right.right.colors[0][2] 
+        self.right.right.colors[0][0] = self.left.colors[0][0]
+        self.right.right.colors[0][1] = self.left.colors[0][1]
+        self.right.right.colors[0][2]  = self.left.colors[0][2] 
+        self.left.colors[0][0]=temp[0]
+        self.left.colors[0][1]=temp[1]
+        self.left.colors[0][2] =temp[2]
+        temp_index = 0
+        add_array = [2,0,-2]
+        stemp = self.top.colors[2][0]
+        for i in range(0,3):
+            for j in range(1,4):
+                if(j!=1 and i != 2):
+                    temp_index = temp_index if temp_index != 3 else 2
+                    temp[temp_index]=self.top.colors[3-j][i]
+                    temp_index += 1
+                self.top.colors[3-j][i]=self.top.colors[i+add_array[i]][3-j] 
+        self.top.colors[0][1] = temp[0]
+        self.top.colors[0][2] = temp[1]
+        self.top.colors[1][2] = temp[2]
+        self.top.colors[0][0] = stemp
+    def turn_lower(self): 
+        temp = [None] * 3
+        temp[0] = self.colors[2][0]
+        temp[1] = self.colors[2][1]
+        temp[2] = self.colors[2][2]
+        self.colors[2][0] = self.left.colors[2][0]
+        self.colors[2][1] = self.left.colors[2][1]
+        self.colors[2][2]  = self.left.colors[2][2] 
+        self.left.colors[2][0] = self.right.right.colors[2][0]
+        self.left.colors[2][1] = self.right.right.colors[2][1]
+        self.left.colors[2][2]  = self.right.right.colors[2][2] 
+        self.right.right.colors[2][0] = self.right.colors[2][0]
+        self.right.right.colors[2][1] = self.right.colors[2][1]
+        self.right.right.colors[2][2]  = self.right.colors[2][2] 
+        self.right.colors[2][0]=temp[0]
+        self.right.colors[2][1]=temp[1]
+        self.right.colors[2][2] =temp[2]
+        temp_index = 0
+        add_array = [2,0,-2]
+        stemp = self.bottom.colors[2][0]
+        for i in range(0,3):
+            for j in range(1,4):
+                if(j!=1 and i != 2):
+                    temp_index = temp_index if temp_index != 3 else 2
+                    temp[temp_index]=self.bottom.colors[3-j][i]
+                    temp_index += 1
+                self.bottom.colors[3-j][i]=self.bottom.colors[i+add_array[i]][3-j] 
+        self.bottom.colors[0][1] = temp[0]
+        self.bottom.colors[0][2] = temp[1]
+        self.bottom.colors[1][2] = temp[2]
+        self.bottom.colors[0][0] = stemp
+
+def createCube(bColor, rColor, gColor, oColor, wColor, yColor):
+    blue = Face(bColor) 
+    red = Face(rColor)
+    orange = Face(oColor)
+    green = Face(gColor)
+    white = Face(wColor)
+    yellow = Face(yColor)
+
+    yellow.left = orange
+    yellow.right = red
+    yellow.top = green
+    yellow.bottom = blue
+
+    blue.left = orange
+    blue.right = red
+    blue.top = yellow
+    blue.bottom = white
+
+    red.left = blue
+    red.right = green
+    red.top = yellow
+    red.bottom = white
+
+    green.left = red
+    green.right = orange
+    green.top = yellow
+    green.bottom = white
+
+    orange.left = green
+    orange.right = blue
+    orange.top = yellow
+    orange.bottom = white
+
+    white.left = orange
+    white.right = red
+    white.top = blue
+    white.bottom = green
+
+    return(blue, red, green, orange, white, yellow)
+
+
+def fillTestFace(color):
+    face = []
+    for i in range(3):
+        row = []
+        for ii in range(3):
+            row.append(color)
+        face.append(row)
+    return face
+
+# input is a tuple of 6 faces, each face is a 3x3 color matrix
+#   Order of tuple is blue, red, green, orange, white and yellow
+# output is same format as input, but with expected colors
+def TurnLogicUnitTest():
+    bColor = fillTestFace(Colors.Blue)
+    rColor = fillTestFace(Colors.Red)
+    gColor = fillTestFace(Colors.Green)
+    oColor = fillTestFace(Colors.Orange)
+    wColor = fillTestFace(Colors.White)
+    yColor = fillTestFace(Colors.Yellow)
+
+    (blue, red, green, orange, white, yellow) = createCube(bColor, rColor, gColor, oColor, wColor, yColor)
+
+    blue.turn_lower()
+
+    print("blue: ")
+    print(blue.colors)
+    print("")
+
+    print("red: ")
+    print(red.colors)
+    print("")
+
+    print("green: ")
+    print(green.colors)
+    print("")
+
+    print("orange: ")
+    print(orange.colors)
+    print("")
+
+    print("white: ")
+    print(white.colors)
+    print("")
+
+    print("yellow: ")
+    print(yellow.colors)
+    print("")
+    
+TurnLogicUnitTest()
