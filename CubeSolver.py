@@ -266,7 +266,27 @@ class Face:
         elif row == 2 and column == 1:
             return self.bottom.colors[0][1]
         else:
-            raise IOError("Bad edge coordinate")
+            raise IOError("Bad edge coordinate for findEdgeColor")
+    
+    def isEdgeMatch(self, row, column):
+        currColor = self.colors[1][1]
+        if row == 0 and column == 1:
+            return self.colors[0][1] == currColor and self.top.colors[2][1] == self.top.colors[1][1]
+        elif row == 1 and column == 0:
+            return self.colors[1][0] == currColor and self.left.colors[1][2] == self.left.colors[1][1]
+        elif row == 1 and column == 2:
+            return self.colors[1][2] == currColor and self.right.colors[1][0] == self.right.colors[1][1]
+        elif row == 2 and column == 1:
+            return self.colors[2][1] == currColor and self.bottom.colors[0][1] == self.bottom.colors[1][1]
+        else:
+            raise IOError("Bad edge coordinate for isEdgeMatch")
+
+    def hasCompleteCross(self):
+        bTop = self.isEdgeMatch(0,1)
+        bLeft = self.isEdgeMatch(1,0)
+        bRight = self.isEdgeMatch(1,2)
+        bBottom = self.isEdgeMatch(2,1)
+        return bTop and bLeft and bRight and bBottom
 
     def turn_right(self):
         temp = [None]*3
@@ -528,4 +548,24 @@ def testEdgeColor():
     else:
         print("White Failed")
 
-testEdgeColor()
+def testIsEdgeMatch():
+    bColor = fillTestFace(Colors.Blue)
+    rColor = fillTestFace(Colors.Red)
+    gColor = fillTestFace(Colors.Green)
+    oColor = fillTestFace(Colors.Orange)
+    wColor = fillTestFace(Colors.White)
+    yColor = fillTestFace(Colors.Yellow)
+
+    (blue, red, green, orange, white, yellow) = createCube(bColor, rColor, gColor, oColor, wColor, yColor)
+    if not blue.isEdgeMatch(0,1):
+        print("blue 0,1 failed")
+    if not red.isEdgeMatch(1, 0):
+        print("red 1,0 failed")
+    if not orange.isEdgeMatch(1,2):
+        print("orange 1,2 failed")
+    if not green.isEdgeMatch(2,1):
+        print("green 2,1 failed")
+    if not white.hasCompleteCross():
+        print("white cross failed")
+
+testIsEdgeMatch()
