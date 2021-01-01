@@ -395,3 +395,94 @@ class Face:
         self.bottom.colors[0][2] = temp[1:2]
         self.bottom.colors[1][2] = temp[2:]
         self.bottom.colors[0][0] = stemp
+
+def createCube(bColor, rColor, gColor, oColor, wColor, yColor):
+    blue = Face(bColor) 
+    red = Face(rColor)
+    orange = Face(oColor)
+    green = Face(gColor)
+    white = Face(wColor)
+    yellow = Face(yColor)
+
+    yellow.left = orange
+    yellow.right = red
+    yellow.top = green
+    yellow.bottom = blue
+
+    blue.left = orange
+    blue.right = red
+    blue.top = yellow
+    blue.bottom = white
+
+    red.left = blue
+    red.right = green
+    red.top = yellow
+    red.bottom = white
+
+    green.left = red
+    green.right = orange
+    green.top = yellow
+    green.bottom = white
+
+    orange.left = green
+    orange.right = blue
+    orange.top = yellow
+    orange.bottom = white
+
+    white.left = orange
+    white.right = red
+    white.top = blue
+    white.bottom = green
+
+    return(blue, red, green, orange, white, yellow)
+
+
+def fillTestFace(color):
+    face = []
+    for i in range(3):
+        row = []
+        for ii in range(3):
+            row.append(color)
+        face.append(row)
+    return face
+
+# input is a tuple of 6 faces, each face is a 3x3 color matrix
+#   Order of tuple is blue, red, green, orange, white and yellow
+# output is same format as input, but with expected colors
+def TurnLogicUnitTest():
+    bColor = fillTestFace(Colors.Blue)
+    rColor = fillTestFace(Colors.Red)
+    gColor = fillTestFace(Colors.Green)
+    oColor = fillTestFace(Colors.Orange)
+    wColor = fillTestFace(Colors.White)
+    yColor = fillTestFace(Colors.Yellow)
+
+    (blue, red, green, orange, white, yellow) = createCube(bColor, rColor, gColor, oColor, wColor, yColor)
+
+    blue.turn_left()
+
+    print("blue: "
+    print(blue.colors)
+    print("")
+
+    print("red: "
+    print(red.colors)
+    print("")
+
+    print("green: "
+    print(green.colors)
+    print("")
+
+    print("orange: "
+    print(orange.colors)
+    print("")
+
+    print("white: "
+    print(white.colors)
+    print("")
+
+    print("yellow: "
+    print(yellow.colors)
+    print("")
+    
+    TurnLogicUnitTest()
